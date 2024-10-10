@@ -18,13 +18,13 @@ vars = {
   'buildtools_revision': '754803453c167d8d4821155cb7fb407ae37aacd8',
 
   'depot_tools_url': 'https://chromium.googlesource.com/chromium/tools/depot_tools.git',
-  'depot_tools_revision': '9109ae431a091e10004d7e3ae4a856de11106063',
+  'depot_tools_revision': '0ab52232ff00523c4ccf6270a9e6ed2c9f1fa5e1',
 
   'inspector_protocol_url': 'https://chromium.googlesource.com/deps/inspector_protocol',
   'inspector_protocol_revision': 'ccf6613682a24413db28656da6f9c52948331bad',
 
   # Keeping track of the last time we rollerd the browser protocol files.
-  'chromium_browser_protocol_revision' : '0e3c5c0529e617b1009e639d9fe772bd5ee80af6',
+  'chromium_browser_protocol_revision' : 'c363a72fe1fbbd0647bef2ef567347230edf8821',
 
   'clang_format_url': 'https://chromium.googlesource.com/external/github.com/llvm/llvm-project/clang/tools/clang-format.git',
   'clang_format_revision': '3c0acd2d4e73dd911309d9e970ba09d58bf23a62',

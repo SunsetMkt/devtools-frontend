@@ -23,7 +23,7 @@ import {type ContextDetail, ErrorType} from '../AiAgent.js';
 import freestylerChatUiStyles from './freestylerChatUi.css.js';
 import {ProvideFeedback, type ProvideFeedbackProps} from './ProvideFeedback.js';
 
-const {html} = LitHtml;
+const {html, Directives} = LitHtml;
 
 const UIStrings = {
   /**
@@ -175,6 +175,18 @@ const UIStringsNotTranslate = {
    *@description Heading text for the code block that shows the returned data.
    */
   dataReturned: 'Data returned',
+  /**
+   *@description Aria label for the check mark icon to be read by screen reader
+   */
+  completed: 'Completed',
+  /**
+   *@description Aria label for the loading icon to be read by screen reader
+   */
+  inProgress: 'In progress',
+  /**
+   *@description Aria label for the cancel icon to be read by screen reader
+   */
+  canceled: 'Canceled',
 };
 
 const str_ = i18n.i18n.registerUIStrings('panels/freestyler/components/FreestylerChatUi.ts', UIStrings);
@@ -545,18 +557,26 @@ export class FreestylerChatUi extends HTMLElement {
 
   #renderStepBadge(step: Step, options: {isLast: boolean}): LitHtml.LitTemplate {
     if (this.#props.isLoading && options.isLast && !step.sideEffect) {
-      return html`<${Spinners.Spinner.Spinner.litTagName}></${Spinners.Spinner.Spinner.litTagName}>`;
+      return html`<${Spinners.Spinner.Spinner.litTagName} role="button" aria-label=${
+          lockedString(UIStringsNotTranslate.inProgress)}></${Spinners.Spinner.Spinner.litTagName}>`;
     }
 
     let iconName: string = 'checkmark';
+    let ariaLabel: string|undefined = lockedString(UIStringsNotTranslate.completed);
+    let role: string|undefined = 'button';
     if (options.isLast && step.sideEffect) {
+      role = undefined;
+      ariaLabel = undefined;
       iconName = 'pause-circle';
     } else if (step.canceled) {
+      ariaLabel = lockedString(UIStringsNotTranslate.canceled);
       iconName = 'cross';
     }
 
     return html`<${IconButton.Icon.Icon.litTagName}
         class="indicator"
+        role=${Directives.ifDefined(role)}
+        aria-label=${Directives.ifDefined(ariaLabel)}
         .name=${iconName}
       ></${IconButton.Icon.Icon.litTagName}>`;
   }
@@ -716,7 +736,7 @@ export class FreestylerChatUi extends HTMLElement {
                   .data=${{
                       variant: Buttons.Button.Variant.OUTLINED,
                       title: suggestion,
-                      jslogContext: 'fix-this-issue',
+                      jslogContext: 'suggestion',
                   } as Buttons.Button.ButtonData}
                   @click=${() => this.#handleSuggestionClick(suggestion)}
                 >${suggestion}</${Buttons.Button.Button.litTagName}>`)}
@@ -1007,6 +1027,7 @@ export class FreestylerChatUi extends HTMLElement {
               width: 'var(--sys-size-8)',
               height: 'var(--sys-size-8)',
             } as IconButton.Icon.IconData}>
+            </${IconButton.Icon.Icon.litTagName}>
           </div>
           <div>
             ${config.devToolsExplainThisResourceDogfood?.enabled ?

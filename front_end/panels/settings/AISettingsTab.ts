@@ -4,6 +4,7 @@
 
 import * as Common from '../../core/common/common.js';
 import * as i18n from '../../core/i18n/i18n.js';
+import type * as Platform from '../../core/platform/platform.js';
 import * as Buttons from '../../ui/components/buttons/buttons.js';
 import * as IconButton from '../../ui/components/icon_button/icon_button.js';
 import * as Input from '../../ui/components/input/input.js';
@@ -86,6 +87,10 @@ const UIStrings = {
    */
   helpUnderstandStyling: 'Get help with understanding CSS styles',
   /**
+   *@description Text describing the 'AI assistance' feature
+   */
+  helpUnderstandStylingAndNetworkRequest: 'Get help with understanding CSS styles and network requests',
+  /**
    *@description Text which is a hyperlink to more documentation
    */
   learnMore: 'Learn more',
@@ -93,6 +98,10 @@ const UIStrings = {
    *@description Description of the AI assistance feature
    */
   explainStyling: 'Understand CSS styles with AI-powered insights',
+  /**
+   *@description Description of the AI assistance feature
+   */
+  explainStylingAndNetworkRequest: 'Understand CSS styles, and network activity with AI-powered insights',
   /**
    *@description Description of the AI assistance feature
    */
@@ -153,6 +162,22 @@ export class AISettingsTab extends LegacyWrapper.LegacyWrapper.WrappableComponen
 
   connectedCallback(): void {
     this.#shadow.adoptedStyleSheets = [Input.checkboxStyles, aiSettingsTabStyles];
+  }
+
+  #getAiAssistanceSettingDescription(): Platform.UIString.LocalizedString {
+    const config = Common.Settings.Settings.instance().getHostConfig();
+    if (config.devToolsExplainThisResourceDogfood?.enabled) {
+      return i18nString(UIStrings.helpUnderstandStylingAndNetworkRequest);
+    }
+    return i18nString(UIStrings.helpUnderstandStyling);
+  }
+
+  #getAiAssistanceSettingInfo(): Platform.UIString.LocalizedString {
+    const config = Common.Settings.Settings.instance().getHostConfig();
+    if (config.devToolsExplainThisResourceDogfood?.enabled) {
+      return i18nString(UIStrings.explainStylingAndNetworkRequest);
+    }
+    return i18nString(UIStrings.explainStyling);
   }
 
   #expandConsoleInsightsSetting(): void {
@@ -309,9 +334,9 @@ export class AISettingsTab extends LegacyWrapper.LegacyWrapper.WrappableComponen
         @click=${this.#toggleConsoleInsightsSetting.bind(this)}
       >
         <${Switch.Switch.Switch.litTagName}
-          .checked=${this.#consoleInsightsSetting?.get() && !this.#consoleInsightsSetting?.disabled()}
-          .jslogContext=${this.#consoleInsightsSetting?.name}
-          .disabled=${this.#consoleInsightsSetting?.disabled()}
+          .checked=${Boolean(this.#consoleInsightsSetting?.get() && !this.#consoleInsightsSetting?.disabled())}
+          .jslogContext=${this.#consoleInsightsSetting?.name || ''}
+          .disabled=${Boolean(this.#consoleInsightsSetting?.disabled())}
           @switchchange=${this.#toggleConsoleInsightsSetting.bind(this)}
           aria-label=${this.#consoleInsightsSetting?.disabledReason() || i18nString(UIStrings.enableConsoleInsights)}
         ></${Switch.Switch.Switch.litTagName}>
@@ -357,7 +382,7 @@ export class AISettingsTab extends LegacyWrapper.LegacyWrapper.WrappableComponen
         </div>
         <div class="setting-card">
           <h2>${i18n.i18n.lockedString('AI assistance')}</h2>
-          <div class="setting-description">${i18nString(UIStrings.helpUnderstandStyling)}</div>
+          <div class="setting-description">${this.#getAiAssistanceSettingDescription()}</div>
         </div>
         <div class="dropdown centered">
           <${Buttons.Button.Button.litTagName}
@@ -377,9 +402,9 @@ export class AISettingsTab extends LegacyWrapper.LegacyWrapper.WrappableComponen
         @click=${this.#toggleAiAssistanceSetting.bind(this)}
       >
         <${Switch.Switch.Switch.litTagName}
-          .checked=${this.#aiAssistanceSetting?.get() && !this.#aiAssistanceSetting?.disabled()}
+          .checked=${Boolean(this.#aiAssistanceSetting?.get() && !this.#aiAssistanceSetting?.disabled())}
           .jslogContext=${this.#aiAssistanceSetting?.name}
-          .disabled=${this.#aiAssistanceSetting?.disabled()}
+          .disabled=${Boolean(this.#aiAssistanceSetting?.disabled())}
           @switchchange=${this.#toggleAiAssistanceSetting.bind(this)}
           aria-label=${this.#aiAssistanceSetting?.disabledReason() || i18nString(UIStrings.enableAiAssistance)}
         ></${Switch.Switch.Switch.litTagName}>
@@ -388,7 +413,7 @@ export class AISettingsTab extends LegacyWrapper.LegacyWrapper.WrappableComponen
         <div class="overflow-hidden">
           <div class="expansion-grid">
             <h3 class="expansion-grid-whole-row">${i18nString(UIStrings.whenOn)}</h3>
-            ${this.#renderSettingItem('info', i18nString(UIStrings.explainStyling))}
+            ${this.#renderSettingItem('info', this.#getAiAssistanceSettingInfo())}
             ${this.#renderSettingItem('pen-spark', i18nString(UIStrings.receiveStylingSuggestions))}
             <h3 class="expansion-grid-whole-row">${i18nString(UIStrings.thingsToConsider)}</h3>
             ${this.#renderSettingItem('google', i18nString(UIStrings.freestylerSendsData))}
